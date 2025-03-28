@@ -1,0 +1,630 @@
+---
+cluster: "tuftshpc"
+
+attributes:
+<%= File.read("/etc/ood/config/apps/dashboard/batch_connect/partials/reservation.yml").indent(2) %>
+  executor:
+    label: Which nextflow executor to use?
+    widget: select
+    options:
+    - [
+        "slurm", "slurm",
+        data-hide-cpu-partition: true,
+        data-hide-num-core: true,
+        data-hide-num-memory: true
+      ]
+    - ["local", "local"]
+    help: |
+      With slurm, tasks will be distributed to different nodes, local means all tasks will run on a single node.
+
+  cpu_partition:
+    widget: "select"
+    label: "Partition"
+    help: "NOTE: Please do not choose specific lab partitions if you are not a member of that lab."
+    value: "batch"
+    options:
+      - ["batch","batch"]
+      - ["largemem", "largemem"]
+      - ["preempt", "preempt"]
+
+  num_core:
+    widget: number_field
+    label: Cores
+    min: 1
+    max: 128
+    value: 1
+    help: |
+      Number of cores (up to 128) for a shared job.  Non-shared jobs will have exclusive nodes and be charged at 128 cores per node requested
+
+  num_memory:
+    widget: "select"
+    label: "Amount of memory"
+    options:
+    - ["1GB", 1GB]
+    - ["2GB", 2GB]
+    - ["4GB", 4GB]
+    - ["8GB", 8GB]
+    - ["16GB", 16GB]
+    - ["32GB", 32GB]
+    - ["64GB", 64GB]
+    - ["72GB", 72GB]
+    - ["80GB", 80GB]
+    - ["96GB", 96GB]
+    - ["128GB", 128GB]
+    - ["160GB", 160GB]
+    - ["256GB", 256GB]
+
+  workdir:
+    label: "Working Directory"
+    widget: "path_selector"
+    directory: "/cluster/tufts"
+    required: false
+    label: Working directory
+    favorites:
+        - /cluster/tufts
+        - /cluster/home
+    
+  resume:
+    label: resume
+    widget: check_box
+    checked_value: 1
+    unchecked_value: 0
+    help: |
+           Resume previous run if found
+
+  tower_access_token:
+    widget: "text_field"
+    required: false
+    label: "TOWER_ACCESS_TOKEN (Optional)"
+    help: "Your TOWER_ACCESS_TOKEN used to monitor runs on [Nextflow Tower](https://seqera.io)."
+
+
+  version:
+    label: Version
+    widget: select
+    options:
+      - ['2.3.1', '/cluster/tufts/biocontainers/nf-core/pipelines/nf-core-smrnaseq/2.3.1/2_3_1']
+      - ['2.3.0', '/cluster/tufts/biocontainers/nf-core/pipelines/nf-core-smrnaseq/2.3.0/2_3_0']
+
+  input_output_options:
+    label: Input/output options
+    widget: 'check_box'
+    html_options:
+      data:
+        hide-input-when-un-checked: true
+        hide-protocol-when-un-checked: true
+        hide-outdir-when-un-checked: true
+        hide-multiqc_title-when-un-checked: true
+    help: "Define where the pipeline should find input data and save output data."
+
+  input:
+    label: input
+    widget: path_selector
+    directory: /cluster/tufts
+    favorites:
+      - /cluster/tufts
+      - /cluster/home 
+    help: "Path to comma-separated file containing information about the samples in the experiment."
+
+  protocol:
+    label: protocol
+    widget: select
+    options:
+      - ['illumina', 'illumina']
+      - ['nextflex', 'nextflex']
+      - ['qiaseq', 'qiaseq']
+      - ['cats', 'cats']
+      - ['custom', 'custom']
+    help: "Protocol for constructing smRNA-seq libraries."
+
+  outdir:
+    label: outdir
+    widget: text_field
+    help: "The output directory where the results will be saved. You have to use absolute paths to storage on Cloud infrastructure."
+
+  multiqc_title:
+    label: multiqc_title
+    widget: text_field
+    help: "MultiQC report title. Printed as page header, used for filename if not otherwise specified."
+
+  umi_options:
+    label: UMI options
+    widget: 'check_box'
+    html_options:
+      data:
+        hide-with_umi-when-un-checked: true
+        hide-umitools_extract_method-when-un-checked: true
+        hide-umitools_method-when-un-checked: true
+        hide-skip_umi_extract_before_dedup-when-un-checked: true
+        hide-umitools_bc_pattern-when-un-checked: true
+        hide-umi_discard_read-when-un-checked: true
+        hide-save_umi_intermeds-when-un-checked: true
+    help: "Options for processing reads with unique molecular identifiers"
+
+  with_umi:
+    label: with_umi
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Enable UMI-based read deduplication."
+
+  umitools_extract_method:
+    label: umitools_extract_method
+    widget: text_field
+    value: "string"
+    help: "UMI pattern to use. Can be either `string` (default) or `regex`."
+
+  umitools_method:
+    label: umitools_method
+    widget: text_field
+    value: "dir"
+    help: "UMI grouping method"
+
+  skip_umi_extract_before_dedup:
+    label: skip_umi_extract_before_dedup
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip the UMI extraction from the reads before deduplication. Please note, if this parameter is set to false, the reads will be deduplicated solely on insert sequence. UMIs might be extracted after deduplication depending on the set umitools_bc_pattern nevertheless if with_umi is set to True."
+
+  umitools_bc_pattern:
+    label: umitools_bc_pattern
+    widget: text_field
+    help: "The UMI barcode pattern to use e.g. `NNNNNN` indicates that the first 6 nucleotides of the read are from the UMI."
+
+  umi_discard_read:
+    label: umi_discard_read
+    widget: number_field
+    step: 1
+    help: "After UMI barcode extraction discard either R1 or R2 by setting this parameter to 1 or 2, respectively."
+
+  save_umi_intermeds:
+    label: save_umi_intermeds
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "If this option is specified, intermediate FastQ and BAM files produced by UMI-tools are also saved in the results directory."
+
+  reference_genome_options:
+    label: Reference genome options
+    widget: 'check_box'
+    html_options:
+      data:
+        hide-genome-when-un-checked: true
+        hide-mirgenedb-when-un-checked: true
+        hide-mirtrace_species-when-un-checked: true
+        hide-mirgenedb_species-when-un-checked: true
+        hide-fasta-when-un-checked: true
+        hide-mirna_gtf-when-un-checked: true
+        hide-mirgenedb_gff-when-un-checked: true
+        hide-mature-when-un-checked: true
+        hide-mirgenedb_mature-when-un-checked: true
+        hide-hairpin-when-un-checked: true
+        hide-mirgenedb_hairpin-when-un-checked: true
+        hide-bowtie_index-when-un-checked: true
+        hide-save_reference-when-un-checked: true
+        hide-save_aligned-when-un-checked: true
+        hide-save_aligned_mirna_quant-when-un-checked: true
+        hide-igenomes_ignore-when-un-checked: true
+    help: "Reference genome related files and options required for the workflow."
+
+  genome:
+    label: iGenomes
+    widget: select
+    required: false
+    options:
+      - ['None', ' ']
+      - ['GRCh37', 'GRCh37']
+      - ['GRCh38', 'GRCh38']
+      - ['GRCm38', 'GRCm38']
+      - ['TAIR10', 'TAIR10']
+      - ['EB2', 'EB2']
+      - ['UMD3.1', 'UMD3.1']
+      - ['WBcel235', 'WBcel235']
+      - ['CanFam3.1', 'CanFam3.1']
+      - ['GRCz10', 'GRCz10']
+      - ['BDGP6', 'BDGP6']
+      - ['EquCab2', 'EquCab2']
+      - ['EB1', 'EB1']
+      - ['Galgal4', 'Galgal4']
+      - ['Gm01', 'Gm01']
+      - ['Mmul_1', 'Mmul_1']
+      - ['IRGSP-1.0', 'IRGSP-1.0']
+      - ['CHIMP2.1.4', 'CHIMP2.1.4']
+      - ['Rnor_5.0', 'Rnor_5.0']
+      - ['Rnor_6.0', 'Rnor_6.0']
+      - ['R64-1-1', 'R64-1-1']
+      - ['EF2', 'EF2']
+      - ['Sbi1', 'Sbi1']
+      - ['Sscrofa10.2', 'Sscrofa10.2']
+      - ['AGPv3', 'AGPv3']
+      - ['hg38', 'hg38']
+      - ['hg19', 'hg19']
+      - ['mm10', 'mm10']
+      - ['bosTau8', 'bosTau8']
+      - ['ce10', 'ce10']
+      - ['canFam3', 'canFam3']
+      - ['danRer10', 'danRer10']
+      - ['dm6', 'dm6']
+      - ['equCab2', 'equCab2']
+      - ['galGal4', 'galGal4']
+      - ['panTro4', 'panTro4']
+      - ['rn6', 'rn6']
+      - ['sacCer3', 'sacCer3']
+      - ['susScr3', 'susScr3']
+    help: "Name of iGenomes reference."
+
+  mirgenedb:
+    label: mirgenedb
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Boolean whether MirGeneDB should be used instead of miRBase"
+
+  mirtrace_species:
+    label: mirtrace_species
+    widget: text_field
+    help: "Species for miRTrace."
+
+  mirgenedb_species:
+    label: mirgenedb_species
+    widget: text_field
+    help: "Species of MirGeneDB."
+
+  fasta:
+    label: fasta
+    widget: path_selector
+    directory: /cluster/tufts
+    favorites:
+      - /cluster/tufts
+      - /cluster/home 
+    help: "Path to FASTA genome file."
+
+  mirna_gtf:
+    label: mirna_gtf
+    widget: text_field
+    help: "GFF/GTF file with coordinates positions of precursor and miRNAs."
+
+  mirgenedb_gff:
+    label: mirgenedb_gff
+    widget: text_field
+    help: "GFF/GTF file with coordinates positions of precursor and miRNAs."
+
+  mature:
+    label: mature
+    widget: text_field
+    value: "https://mirbase.org/download/mature.fa"
+    help: "Path to FASTA file with mature miRNAs."
+
+  mirgenedb_mature:
+    label: mirgenedb_mature
+    widget: text_field
+    help: "Path to FASTA file with MirGeneDB mature miRNAs."
+
+  hairpin:
+    label: hairpin
+    widget: text_field
+    value: "https://mirbase.org/download/hairpin.fa"
+    help: "Path to FASTA file with miRNAs precursors."
+
+  mirgenedb_hairpin:
+    label: mirgenedb_hairpin
+    widget: text_field
+    help: "Path to FASTA file with miRNAs precursors."
+
+  bowtie_index:
+    label: bowtie_index
+    widget: text_field
+    help: "Path to a Bowtie 1 index directory"
+
+  save_reference:
+    label: save_reference
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Save generated reference genome files to results."
+
+  save_aligned:
+    label: save_aligned
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Save aligned reads of initial mapping in bam format."
+
+  save_aligned_mirna_quant:
+    label: save_aligned_mirna_quant
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Save aligned reads of miRNA quant subworkflow in bam format."
+
+  trimming_options:
+    label: Trimming options
+    widget: 'check_box'
+    html_options:
+      data:
+        hide-clip_r1-when-un-checked: true
+        hide-three_prime_clip_r1-when-un-checked: true
+        hide-three_prime_adapter-when-un-checked: true
+        hide-trim_fastq-when-un-checked: true
+        hide-fastp_min_length-when-un-checked: true
+        hide-fastp_max_length-when-un-checked: true
+        hide-save_trimmed_fail-when-un-checked: true
+        hide-fastp_known_mirna_adapters-when-un-checked: true
+        hide-min_trimmed_reads-when-un-checked: true
+        hide-save_merged-when-un-checked: true
+        hide-phred_offset-when-un-checked: true
+    help: "Options for trimming reads and primers."
+
+  clip_r1:
+    label: clip_r1
+    widget: number_field
+    step: 1
+    help: "The number of basepairs to remove from the 5` end of read 1."
+
+  three_prime_clip_r1:
+    label: three_prime_clip_r1
+    widget: number_field
+    step: 1
+    help: "The number of basepairs to remove from the 3` end of read 1 AFTER adapter/quality trimming has been performed."
+
+  three_prime_adapter:
+    label: three_prime_adapter
+    widget: text_field
+    value: "AGATCGGAAGAGCACACGTCTGAACTCCAGTCA"
+    help: "Sequencing adapter sequence to use for trimming."
+
+  trim_fastq:
+    label: trim_fastq
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Trim FastQ files"
+
+  fastp_min_length:
+    label: fastp_min_length
+    widget: number_field
+    value: 17
+    step: 1
+    help: "Minimum filter length for raw reads."
+
+  fastp_max_length:
+    label: fastp_max_length
+    widget: number_field
+    value: 100
+    step: 1
+    help: "Maximum filter length for raw reads."
+
+  save_trimmed_fail:
+    label: save_trimmed_fail
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Save reads failing trimming"
+
+  fastp_known_mirna_adapters:
+    label: fastp_known_mirna_adapters
+    widget: path_selector
+    directory: /cluster/tufts
+    favorites:
+      - /cluster/tufts
+      - /cluster/home 
+    help: "FastA with known miRNA adapter sequences for adapter trimming"
+
+  min_trimmed_reads:
+    label: min_trimmed_reads
+    widget: number_field
+    value: 10
+    step: 1
+    help: "Minimum number of reads required in input file to use it"
+
+  save_merged:
+    label: save_merged
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Save merged reads."
+
+  phred_offset:
+    label: phred_offset
+    widget: number_field
+    value: 33
+    step: 1
+    help: "The PHRED quality offset to be used for any input fastq files. Default is 33, standard Illumina 1.8+ format."
+
+  contamination_filtering:
+    label: Contamination filter options
+    widget: 'check_box'
+    html_options:
+      data:
+        hide-filter_contamination-when-un-checked: true
+        hide-rrna-when-un-checked: true
+        hide-trna-when-un-checked: true
+        hide-cdna-when-un-checked: true
+        hide-ncrna-when-un-checked: true
+        hide-pirna-when-un-checked: true
+        hide-other_contamination-when-un-checked: true
+    help: "Options to remove contamination from the reads."
+
+  filter_contamination:
+    label: filter_contamination
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Enables the contamination filtering."
+
+  rrna:
+    label: rrna
+    widget: path_selector
+    directory: /cluster/tufts
+    favorites:
+      - /cluster/tufts
+      - /cluster/home 
+    help: "Path to the rRNA fasta file to be used as contamination database."
+
+  trna:
+    label: trna
+    widget: path_selector
+    directory: /cluster/tufts
+    favorites:
+      - /cluster/tufts
+      - /cluster/home 
+    help: "Path to the tRNA fasta file to be used as contamination database."
+
+  cdna:
+    label: cdna
+    widget: path_selector
+    directory: /cluster/tufts
+    favorites:
+      - /cluster/tufts
+      - /cluster/home 
+    help: "Path to the cDNA fasta file to be used as contamination database."
+
+  ncrna:
+    label: ncrna
+    widget: path_selector
+    directory: /cluster/tufts
+    favorites:
+      - /cluster/tufts
+      - /cluster/home 
+    help: "Path to the ncRNA fasta file to be used as contamination database."
+
+  pirna:
+    label: pirna
+    widget: path_selector
+    directory: /cluster/tufts
+    favorites:
+      - /cluster/tufts
+      - /cluster/home 
+    help: "Path to the piRNA fasta file to be used as contamination database."
+
+  other_contamination:
+    label: other_contamination
+    widget: path_selector
+    directory: /cluster/tufts
+    favorites:
+      - /cluster/tufts
+      - /cluster/home 
+    help: "Path to an additional fasta file to be used as contamination database."
+
+  skipping_pipeline_steps:
+    label: Skipping pipeline steps
+    widget: 'check_box'
+    html_options:
+      data:
+        hide-skip_fastqc-when-un-checked: true
+        hide-skip_mirdeep-when-un-checked: true
+        hide-skip_multiqc-when-un-checked: true
+        hide-skip_fastp-when-un-checked: true
+    help: "Switches to skip specific pipeline steps, if desired."
+
+  skip_fastqc:
+    label: skip_fastqc
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip FastQC"
+
+  skip_mirdeep:
+    label: skip_mirdeep
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip miRDeep"
+
+  skip_multiqc:
+    label: skip_multiqc
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip MultiQC"
+
+  skip_fastp:
+    label: skip_fastp
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip FastP"
+
+
+form:
+  - bc_num_hours
+  - executor
+  - cpu_partition
+  - num_core
+  - num_memory
+  - reservation
+  - version
+  - workdir
+  - outdir
+  - input_output_options
+  - input
+  - protocol
+  - multiqc_title
+  - umi_options
+  - with_umi
+  - umitools_extract_method
+  - umitools_method
+  - skip_umi_extract_before_dedup
+  - umitools_bc_pattern
+  - umi_discard_read
+  - save_umi_intermeds
+  - reference_genome_options
+  - genome
+  - igenomes_ignore
+  - mirgenedb
+  - mirtrace_species
+  - mirgenedb_species
+  - fasta
+  - mirna_gtf
+  - mirgenedb_gff
+  - mature
+  - mirgenedb_mature
+  - hairpin
+  - mirgenedb_hairpin
+  - bowtie_index
+  - save_reference
+  - save_aligned
+  - save_aligned_mirna_quant
+  - trimming_options
+  - clip_r1
+  - three_prime_clip_r1
+  - three_prime_adapter
+  - trim_fastq
+  - fastp_min_length
+  - fastp_max_length
+  - save_trimmed_fail
+  - fastp_known_mirna_adapters
+  - min_trimmed_reads
+  - save_merged
+  - phred_offset
+  - contamination_filtering
+  - filter_contamination
+  - rrna
+  - trna
+  - cdna
+  - ncrna
+  - pirna
+  - other_contamination
+  - skipping_pipeline_steps
+  - skip_fastqc
+  - skip_mirdeep
+  - skip_multiqc
+  - skip_fastp
+  - tower_access_token
+  - resume
